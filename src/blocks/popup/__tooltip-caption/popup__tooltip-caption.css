@@ -1,0 +1,18 @@
+.popup__tooltip-caption {
+  font-style: normal;
+  font-weight: 900;
+  font-size: 24px;
+  line-height: 29px;
+  text-align: center;
+  color: #000;
+  margin: 0 0 25px;
+  max-width: 358px;
+}
+
+@media screen and (max-width: 767px) {
+  .popup__tooltip-caption {
+    font-size: 20px;
+    line-height: 24px;
+    max-width: 244px;
+  }
+}

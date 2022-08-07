@@ -1,0 +1,10 @@
+.entry__link {
+  text-decoration: none;
+  color: inherit;
+  transition: opacity .3s ease;
+}
+
+.entry__link:hover {
+  cursor: pointer;
+  opacity: .8;
+}

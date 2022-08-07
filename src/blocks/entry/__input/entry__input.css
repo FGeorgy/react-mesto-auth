@@ -1,0 +1,24 @@
+.entry__input {
+  width: 358px;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 17px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 13px;
+  margin-bottom: 30px;
+  color: #ccc;
+  background-color: transparent;
+}
+
+.entry__input:focus {
+  outline: none;
+  background-color: transparent;
+  color: #fff;
+}
+
+@media screen and (max-width: 767px) {
+  .entry__input {
+    width: 238px;
+  }
+}

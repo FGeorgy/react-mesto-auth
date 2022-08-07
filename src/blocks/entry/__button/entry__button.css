@@ -1,0 +1,19 @@
+.entry__button {
+  height: 50px;
+  min-width: 358px;
+  padding: 0;
+  border: none;
+  border-radius: 2px;
+  margin: 216px 0 0;
+  background-color: #fff;
+  color: #000;
+  font-size: 18px;
+  line-height: 22px;
+  text-align: center;
+  transition: opacity .3s ease;
+}
+
+.entry__button:hover {
+  cursor: pointer;
+  opacity: .8;
+}
