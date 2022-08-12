@@ -22,28 +22,28 @@ import * as auth from '../utils/Auth.js';
 function App() {
   const navigate = useNavigate();
 
-  const [isEditProfilePopupOpen, setEditProfilePopupOpen] = React.useState(false);
-  const [isAddPlacePopupOpen, setAddPlacePopupOpen] = React.useState(false);
-  const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = React.useState(false);
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({});
-  const [isConfirmDeletePopupOpen, setConfirmDeletePopupOpen] = React.useState(false);
+  const [isConfirmDeletePopupOpen, setIsConfirmDeletePopupOpen] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [loggedIn, setLoggedIn] =React.useState(false);
-  const [message, setMessage] = React.useState( {img: '', text: ''} );
-  const [isInfoTooltipOpen, setInfoTooltipOpen] = React.useState(false);
+  const [tooltipMessage, setTooltipMessage] = React.useState( {img: '', text: ''} );
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = React.useState(false);
   const [email, setEmail] = React.useState('');
 
   function handleEditProfileClick() {
-    setEditProfilePopupOpen(true);
+    setIsEditProfilePopupOpen(true);
   };
 
   function handleAddPlaceClick() {
-    setAddPlacePopupOpen(true);
+    setIsAddPlacePopupOpen(true);
   };
 
   function handleEditAvatarClick() {
-    setEditAvatarPopupOpen(true);
+    setIsEditAvatarPopupOpen(true);
   };
 
   function handleCardClick(card) {
@@ -51,12 +51,12 @@ function App() {
   };
 
   function closeAllPopup() {
-    setEditProfilePopupOpen(false);
-    setAddPlacePopupOpen(false);
-    setEditAvatarPopupOpen(false);
+    setIsEditProfilePopupOpen(false);
+    setIsAddPlacePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
     setSelectedCard({});
-    setConfirmDeletePopupOpen(false);
-    setInfoTooltipOpen(false);
+    setIsConfirmDeletePopupOpen(false);
+    setIsInfoTooltipOpen(false);
   };
 
   function handleUpdateUser(userData) {
@@ -90,7 +90,7 @@ function App() {
   function handleCardDelete(card) {
     Api.deleteCard(card._id)
       .then(() => {
-        setCards(cards.filter((item) => item !== card))
+        setCards(cards => cards.filter((item) => item !== card))
       })
       .catch((err) => console.log(err))
   };
@@ -108,13 +108,15 @@ function App() {
     auth.register(email, password)
       .then((res) => {
         if (res) {
-          setMessage({ img: success, text: 'Вы успешно зарегистрировались!' });
+          setTooltipMessage({ img: success, text: 'Вы успешно зарегистрировались!' });
           navigate("/sign-in", { replace: true });
-        } else {
-          setMessage({ img: unSucces, text: 'Что-то пошло не так! Попробуйте ещё раз.' });
         }
       })
-      .finally(() => setInfoTooltipOpen(true));
+      .catch((err) => {
+        console.log(err);
+        setTooltipMessage({ img: unSucces, text: 'Что-то пошло не так! Попробуйте ещё раз.' });
+      })
+      .finally(() => setIsInfoTooltipOpen(true));
   }
 
   function handleLogin(email, password) {
@@ -124,10 +126,12 @@ function App() {
           setLoggedIn(true);
           setEmail(email);
           navigate("/", { replace: true });
-        } else {
-          setMessage({ img: unSucces, text: 'Что-то пошло не так! Попробуйте ещё раз.' });
-          setInfoTooltipOpen(true);
         }
+      })
+      .catch((err) => {
+        console.log(err);
+        setTooltipMessage({ img: unSucces, text: 'Что-то пошло не так! Попробуйте ещё раз.' });
+        setIsInfoTooltipOpen(true);
       })
   }
 
@@ -138,20 +142,14 @@ function App() {
   }
 
   React.useEffect(() => {
-    Api.getUserInfo()
-      .then((data) => {
-        setCurrentUser(data);
+    if (!loggedIn) return;
+    Promise.all([Api.getUserInfo(), Api.getInitialCards()])
+      .then(([userData, cardsData]) => {
+        setCurrentUser(userData);
+        setCards(cardsData);
       })
       .catch((err) => console.log(err));
-  }, [setCurrentUser]);
-
-  React.useEffect(() => {
-    Api.getInitialCards()
-      .then((data) => {
-        setCards(data);
-      })
-      .catch((err) => console.log(err));
-  }, [setCards]);
+  }, [loggedIn]);
 
   React.useEffect(() => {
     const token = localStorage.getItem('token');
@@ -163,11 +161,14 @@ function App() {
             setLoggedIn(true);
             setEmail(res.data.email);
             navigate("/", { replace: true });
+          } else {
+            setTooltipMessage({ img: unSucces, text: 'Что-то пошло не так! Попробуйте ещё раз.' });
+            setIsInfoTooltipOpen(true);
           }
         })
-        .catch((err) => console.log(err))
+        .catch((err) => console.log(err));
     }
-  })
+  }, []);
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
@@ -246,8 +247,8 @@ function App() {
         name="info-tooltip"
         isOpen={isInfoTooltipOpen}
         onClose={closeAllPopup}
-        text={message.text}
-        img={message.img}
+        text={tooltipMessage.text}
+        img={tooltipMessage.img}
       />
     </ CurrentUserContext.Provider>
   );
